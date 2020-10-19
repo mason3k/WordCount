@@ -101,7 +101,7 @@ class WordBank(object):
             print("No words to analyze found!")
             return
 
-        print("{0:^35}".format(self.title))
+        print("{0:^45}".format(self.title))
         for entry in self.top_words:
             print("{0:<25} {1:>20}".format(*entry))
         return
