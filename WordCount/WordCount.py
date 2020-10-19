@@ -14,7 +14,7 @@ from WordBank import WordBank
 
 
 
-def entry():
+def main():
     """Main entrypoint into repeated user prompting and processing"""
     cont  = True
     while cont == True:
@@ -160,4 +160,4 @@ def process_file(filepath, word_bank):
     return
 
 #simple_main()
-entry()
+main()
