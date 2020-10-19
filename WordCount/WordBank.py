@@ -107,8 +107,9 @@ class WordBank(object):
         return
 
     def sanitize_word(self,word):
-        """Converts word to lowercase and strips punctuation besides ' 
+        """Converts word to lowercase and strips punctuation besides ' and -
         ' is included so as not to mangle contractions (don't, won't, etc.)
+        - is included to prevent hyphenated words from being mangled
         """
         word = word.translate(self.replace_table)
         word = word.lower()
@@ -116,8 +117,10 @@ class WordBank(object):
 
     @staticmethod
     def __init_replace_table():
-        """Initializes a translation table that strips all punctuation besides ' """
-        strip_punc_dict = {punc: "" for punc in string.punctuation.replace("'","")}
+        """Initializes a translation table that strips all punctuation besides ' and -  """
+        #strip all characters besides ' and - (to avoid mangling words)
+        chars_to_strip = string.punctuation.translate(str.maketrans("","","'-"))
+        strip_punc_dict = {punc: "" for punc in chars_to_strip}
         rep_table = str.maketrans(strip_punc_dict)
         return rep_table
 

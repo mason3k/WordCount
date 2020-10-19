@@ -159,5 +159,6 @@ def process_file(filepath, word_bank):
     f.close()
     return
 
+#Uncomment simple_main and delete main if you are having issues with the file selector!
 #simple_main()
 main()
