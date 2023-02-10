@@ -1,4 +1,4 @@
-#WordCount
+# WordCount
 WordCount analyzes word-frequency within a corpus of texts and provides a count of
 most-used words.
 
@@ -7,7 +7,7 @@ data directory and generates a list of the most common words in those
 file(s) along with their usage count.
 
 ---------
-Instructions:
+## Instructions
 
 Per the requirements.txt file, this program requires the nltk and pick packages.
 certifi==2020.6.20
@@ -39,7 +39,7 @@ Visual Studio if you go to Tools > Options > Python > Debugging and uncheck
 you can update WordCount.py to call simple_main instead of main.
 
 -----------
-Assumptions:
+## Assumptions
 1. In my version of the sample, the most frequent number of items seem 
 	to have their word counts aligned, whereas the later words seem to just 
 	be tabbed from the word. I assumed this was not part of the specification
@@ -62,7 +62,7 @@ Assumptions:
 	rid of "each" as a stopword. 
 	
 -----------
-Enhancements:
+## Enhancements
 Handle "-" used when a word wraps a line
 Handle possessive ' or when used for plurals
 Cache file analysis between runs
