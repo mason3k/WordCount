@@ -10,7 +10,8 @@ import os
 from pathlib import Path
 
 from pick import pick
-from word_bank import WordBank
+
+from .word_bank import WordBank
 
 
 def main():
@@ -88,7 +89,7 @@ def get_file_from_user():
     prompt = "Select a file to process (using arrow keys):"
 
     # Print user-selectable options for all files in ./sample data
-    for file in Path("./sample_data/").glob("*.txt"):
+    for file in (Path(__file__).parent / "sample_data").glob("*.txt"):
         cntr += 1
         absolute_filepath = os.path.join(file.resolve())
         label = format_label(cntr, file.name)
@@ -121,7 +122,7 @@ def scan_files(word_bank):
     returns True if any files were successfully processed, else False
     """
     processed_file_cnt = 0
-    for file in Path("./sample_data/").glob("*.txt"):
+    for file in (Path(__file__).parent / "sample_data").glob("*.txt"):
         print("{}{:.45}{}".format("Analyzing ", file.name, "..."))
         try:
             # Do the actual word-count analysis
