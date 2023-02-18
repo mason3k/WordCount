@@ -6,12 +6,16 @@ data directory and generates a list of the most common words in those
 file(s) along with their usage count.
 """
 
-import os
 from pathlib import Path
 
 from pick import pick
 
 from .word_bank import WordBank
+from rich.prompt import Confirm
+from typing import Optional
+
+from .word_bank import COLOR_CYCLER
+from .word_bank import console
 
 
 def main():
@@ -55,25 +59,15 @@ def interactive_main():
         print("No file found!")
         return False
     elif filepath == "ALL":
-        scan_files(word_bank)
+        process_files(word_bank)
     else:
-        print("Working...")
-        process_file(filepath, word_bank)
+        process_files(word_bank, filepath)
 
     # Output most common words
     print("\n" * 2)
     word_bank.print_top_words()
 
-    return should_continue()
-
-
-def should_continue():
-    """Gets whether the user wishes to continue processing files (True) or quit (False)"""
-    try:
-        user_str = input("Press ENTER to continue; type QUIT to quit\n")
-    except Exception:
-        print("Invalid input")
-    return str.strip(user_str).upper() != "QUIT"
+    return Confirm.ask("Results complete. Run another analysis?")
 
 
 def get_file_from_user():
@@ -91,7 +85,7 @@ def get_file_from_user():
     # Print user-selectable options for all files in ./sample data
     for file in (Path(__file__).parent / "sample_data").glob("*.txt"):
         cntr += 1
-        absolute_filepath = os.path.join(file.resolve())
+        absolute_filepath = file.resolve()
         label = format_label(cntr, file.name)
         # options object is used by pick to populate the picklist
         #'label' is what is displayed to the user and 'filepath' is what will be returned if user selects this option
@@ -108,43 +102,54 @@ def get_file_from_user():
     return selected[0].get("filepath")
 
 
-def get_label(option):
+def get_label(option: dict) -> str:
     return option.get("label")
 
 
-def format_label(cntr, name):
+def format_label(cntr, name: str) -> str:
     return f"{cntr}. {name:.40}"
 
 
-def scan_files(word_bank):
-    """Traverses the /sample_data/ directory and performs word count analysis on each file in the directory
+def process_files(word_bank: WordBank, filepath: Optional[Path] = None) -> bool:
+    """Traverses the /sample_data/ directory and performs word count analysis on each f
+    ile in the directory
+
+    Arguments:
+    filepath -- the absolute filepath of the file to analyze. If None, process
+    all files in the sample directory
 
     returns True if any files were successfully processed, else False
     """
     processed_file_cnt = 0
-    for file in (Path(__file__).parent / "sample_data").glob("*.txt"):
-        print("{}{:.45}{}".format("Analyzing ", file.name, "..."))
+    if filepath is not None:
+        files = [filepath]
+    else:
+        files = (Path(__file__).parent / "sample_data").glob("*.txt")
+
+    for file in files:
+        console.print("{}{:.45}{}".format("Analyzing ", file.name, "..."), style=next(COLOR_CYCLER))
         try:
-            # Do the actual word-count analysis
-            process_file(file, word_bank)
+            process_one_path(word_bank, file)
             processed_file_cnt += 1
         except Exception as e:
-            print(f"Error processing {file}: {e}")
+            console.print(f"Error processing {file}: {e}", style="white", highlight="red")
     return processed_file_cnt > 0
 
 
-def process_file(filepath, word_bank):
-    """Opens the given absolute filepath, reads in the file, and updates the WordBank with the words from the file
+def process_one_path(word_bank: WordBank, filepath: Path):
+    """Opens the given absolute filepath, reads in the file, and updates the WordBank
+    with the words from the file
 
-    Keyword arguments:
+    Arguments:
     filepath -- the absolute filepath of the file to analyze
     word_bank -- the object containing data about the frequency of word appearances
 
     raises io exceptions
     """
-    with open(filepath, encoding="utf-8") as f:
+
+    with filepath.open(encoding="utf-8") as f:
         while line := f.readline():
             words = line.split()
             # populate WordBank with words from this line
             # WordBank handles casing, stripping punctuation, stopwords, unprintable chars, etc.
-            word_bank.append_words(words)
+            word_bank.add_words(*words)
