@@ -1,10 +1,25 @@
 import collections
 import string
 from typing import Final
-
+from rich.console import Console
+from rich.table import Table
 from nltk.corpus import stopwords
+from itertools import cycle
 
 MAX_NUM_DEFAULT: Final[int] = 10
+
+console = Console()
+
+COLOR_CYCLER = cycle(
+    (
+        "blue_violet",
+        # "blue",
+        "dark_turquoise",
+        "dark_orange3",
+        "magenta",
+        "cyan",
+    )
+)
 
 
 class WordBank:
@@ -58,9 +73,7 @@ class WordBank:
         self.stop_words = set(stopwords.words("english")) - {"each"}
         self.is_empty = True
 
-        self.title = f"--Top {max_num} Words--"
-        # replace_table is a translation table to helps strip unwanted characters from words
-        self.replace_table = self.__init_replace_table()
+        self._title = f"--Top {max_num} Words--"
 
     def __str__(self):
         return self.word_bank
@@ -78,10 +91,9 @@ class WordBank:
     def add_word(self, word):
         """Validates and adds a single word to the WordBank"""
         sanitized_word = self.sanitize_word(word)
-        if self.is_word_legal(sanitized_word) == False:
-            return
-        self.word_bank[sanitized_word] += 1
-        self.is_empty = False
+        if self.is_word_legal(sanitized_word):
+            self.word_bank[sanitized_word] += 1
+            self.is_empty = False
 
     def is_word_legal(self, word):
         """True if the word is valid to be added to the WordBank, else False
@@ -98,23 +110,20 @@ class WordBank:
             print("No words to analyze found!")
             return
 
-        print(f"{self.title:^45}")
+        table = Table(title=self._title)
+        table.add_column("Word", justify="center")
+        table.add_column("Occurrences", justify="center")
+
         for entry in self.top_words:
-            print("{:<25} {:>20}".format(*entry))
+            table.add_row(*(str(item) for item in entry), style=next(COLOR_CYCLER))
+        console.print(table, justify="center")
 
     def sanitize_word(self, word):
         """Converts word to lowercase and strips punctuation besides ' and -
         ' is included so as not to mangle contractions (don't, won't, etc.)
         - is included to prevent hyphenated words from being mangled
         """
-        word = word.translate(self.replace_table)
+        punc_to_remove = string.punctuation.replace("'", "").replace("-", "")
+        word = word.strip(punc_to_remove)
         word = word.lower()
         return word
-
-    @staticmethod
-    def __init_replace_table():
-        """Initializes a translation table that strips all punctuation besides ' and -"""
-        # strip all characters besides ' and - (to avoid mangling words)
-        chars_to_strip = string.punctuation.translate(str.maketrans("", "", "'-"))
-        strip_punc_dict = {punc: "" for punc in chars_to_strip}
-        return str.maketrans(strip_punc_dict)
