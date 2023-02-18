@@ -79,23 +79,23 @@ class WordBank:
         return self.word_bank
 
     @property
-    def top_words(self):
+    def top_words(self) -> list[tuple[str, int]]:
         """Gets current list of top [max_word] words"""
         return self.word_bank.most_common(self.max_num)
 
-    def append_words(self, words):
+    def add_words(self, *words: str) -> None:
         """Validates and adds a list of words to the WordBank"""
         for word in words:
             self.add_word(word)
 
-    def add_word(self, word):
+    def add_word(self, word: str) -> None:
         """Validates and adds a single word to the WordBank"""
         sanitized_word = self.sanitize_word(word)
         if self.is_word_legal(sanitized_word):
             self.word_bank[sanitized_word] += 1
             self.is_empty = False
 
-    def is_word_legal(self, word):
+    def is_word_legal(self, word: str) -> bool:
         """True if the word is valid to be added to the WordBank, else False
 
         Removes empty strings, words to ignore from stop_words, and unprintable characters
@@ -104,7 +104,7 @@ class WordBank:
             return False
         return bool(str.isprintable(word))
 
-    def print_top_words(self):
+    def print_top_words(self) -> None:
         """Prints a readable table of the top [max_num] words along with their frequencies"""
         if self.is_empty is True:
             print("No words to analyze found!")
@@ -118,7 +118,7 @@ class WordBank:
             table.add_row(*(str(item) for item in entry), style=next(COLOR_CYCLER))
         console.print(table, justify="center")
 
-    def sanitize_word(self, word):
+    def sanitize_word(self, word: str) -> str:
         """Converts word to lowercase and strips punctuation besides ' and -
         ' is included so as not to mangle contractions (don't, won't, etc.)
         - is included to prevent hyphenated words from being mangled
