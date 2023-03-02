@@ -17,6 +17,7 @@ dependencies = [
     "windows-curses==2.1.0; sys_platform == 'win32'",
     "nltk==3.5",
 ]
+version="1.0.0"
 
 [tool.black]
 line-length = 100
