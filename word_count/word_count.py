@@ -4,6 +4,10 @@ from typing import Literal
 from pick import pick
 
 from .word_bank import WordBank
+from rich.prompt import Confirm
+
+from .word_bank import COLOR_CYCLER
+from .word_bank import console
 
 
 def main():
@@ -47,23 +51,13 @@ def interactive_main():
     elif filepath == "ALL":
         populate_wordbank_from_files(word_bank)
     else:
-        print("Working...")
         populate_wordbank_from_file(filepath, word_bank)
 
     # Output most common words
     print("\n" * 2)
     word_bank.print_top_words()
 
-    return should_continue()
-
-
-def should_continue():
-    """Gets whether the user wishes to continue processing files (True) or quit (False)"""
-    try:
-        user_str = input("Press ENTER to continue; type QUIT to quit\n")
-    except Exception:
-        print("Invalid input")
-    return str.strip(user_str).upper() != "QUIT"
+    return Confirm.ask("Results complete. Run another analysis?")
 
 
 def get_file_from_user() -> Path | Literal["ALL"] | None:
@@ -112,21 +106,25 @@ def populate_wordbank_from_files(word_bank: WordBank) -> bool:
     returns True if any files were successfully processed, else False
     """
     processed_file_cnt = 0
-    for file in (Path(__file__).parent / "sample_data").glob("*.txt"):
-        print("{}{:.45}{}".format("Analyzing ", file.name, "..."))
+    if filepath is not None:
+        files = [filepath]
+    else:
+        files = (Path(__file__).parent / "sample_data").glob("*.txt")
+
+    for file in files:
+        console.print("{}{:.45}{}".format("Analyzing ", file.name, "..."), style=next(COLOR_CYCLER))
         try:
-            # Do the actual word-count analysis
-            populate_wordbank_from_file(file, word_bank)
+            populate_wordbank_from_file(word_bank, file)
             processed_file_cnt += 1
         except Exception as e:
-            print(f"Error processing {file}: {e}")
+            console.print(f"Error processing {file}: {e}", style="white", highlight="red")
     return processed_file_cnt > 0
 
 
 def populate_wordbank_from_file(filepath: Path, word_bank: WordBank) -> None:
     """Opens the given absolute filepath, reads in the file, and updates the WordBank with the words from the file
 
-    Keyword arguments:
+    Arguments:
     filepath -- the absolute filepath of the file to analyze
     word_bank -- the object containing data about the frequency of word appearances
 
@@ -137,4 +135,4 @@ def populate_wordbank_from_file(filepath: Path, word_bank: WordBank) -> None:
             words = line.split()
             # populate WordBank with words from this line
             # WordBank handles casing, stripping punctuation, stopwords, unprintable chars, etc.
-            word_bank.append_words(*words)
+            word_bank.add_words(*words)
