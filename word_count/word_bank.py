@@ -1,4 +1,4 @@
-import collections
+from collections import Counter
 import string
 from typing import Final
 from rich.console import Console
@@ -65,13 +65,13 @@ class WordBank:
             word bank and the number of appearances
     """
 
-    def __init__(self, max_num=MAX_NUM_DEFAULT):
-        self.max_num = max_num
-        self.word_bank = collections.Counter()
+    def __init__(self, max_num: int = MAX_NUM_DEFAULT):
+        self.max_num: int = max_num
+        self.word_bank: Counter = Counter()
         # step_words is a list of words to ignore when counting frequencies
         # uses the NLTK stopwords corpus but allows "each" to be included (as in the sample text)
-        self.stop_words = set(stopwords.words("english")) - {"each"}
-        self.is_empty = True
+        self.stop_words: set[str] = set(stopwords.words("english")) - {"each"}
+        self.is_empty: bool = True
 
         self._title = f"--Top {max_num} Words--"
 
@@ -83,19 +83,19 @@ class WordBank:
         """Gets current list of top [max_word] words"""
         return self.word_bank.most_common(self.max_num)
 
-    def append_words(self, words):
+    def append_words(self, *words: str):
         """Validates and adds a list of words to the WordBank"""
         for word in words:
             self.add_word(word)
 
-    def add_word(self, word):
+    def add_word(self, word: str):
         """Validates and adds a single word to the WordBank"""
         sanitized_word = self.sanitize_word(word)
         if self.is_word_legal(sanitized_word):
             self.word_bank[sanitized_word] += 1
             self.is_empty = False
 
-    def is_word_legal(self, word):
+    def is_word_legal(self, word: str):
         """True if the word is valid to be added to the WordBank, else False
 
         Removes empty strings, words to ignore from stop_words, and unprintable characters
@@ -118,12 +118,11 @@ class WordBank:
             table.add_row(*(str(item) for item in entry), style=next(COLOR_CYCLER))
         console.print(table, justify="center")
 
-    def sanitize_word(self, word):
+    def sanitize_word(self, word: str):
         """Converts word to lowercase and strips punctuation besides ' and -
         ' is included so as not to mangle contractions (don't, won't, etc.)
         - is included to prevent hyphenated words from being mangled
         """
         punc_to_remove = string.punctuation.replace("'", "").replace("-", "")
         word = word.strip(punc_to_remove)
-        word = word.lower()
-        return word
+        return word.lower()
