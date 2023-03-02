@@ -67,5 +67,5 @@ you can update WordCount.py to call simple_main instead of main.
 ## Enhancements
 
 - [ ] Handle "-" used when a word wraps a line
-- [] Handle possessive ' or when used for plurals
+- [ ] Handle possessive ' or when used for plurals
 - [ ] Cache file analysis between runs
