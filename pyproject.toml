@@ -11,9 +11,7 @@ description = "Analyzes word-frequency within a corpus of texts and provides a c
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "certifi==2020.6.20",
     "pick==1.0.0",
-    "wincertstore==0.2",
     "windows-curses==2.1.0; sys_platform == 'win32'",
     "nltk==3.8.1",
 ]
