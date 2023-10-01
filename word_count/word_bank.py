@@ -123,6 +123,5 @@ class WordBank:
         ' is included so as not to mangle contractions (don't, won't, etc.)
         - is included to prevent hyphenated words from being mangled
         """
-        punc_to_remove = string.punctuation.replace("'", "").replace("-", "")
-        word = word.strip(punc_to_remove)
+        word = word.strip(string.punctuation)
         return word.lower()
